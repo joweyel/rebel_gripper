@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rebel_gripper">
+    <xacro:include filename="$(find rebel_gripper)/urdf/rebel_gripper_macro.xacro" />
+
+    <!-- parameters -->
+    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="gripper_orientation" default="0.0" />
+
+    <!-- create base link -->
+    <link name="world" />
+
+    <!-- gripper -->
+    <xacro:rebel_gripper prefix="$(arg prefix)" parent="world"
+        orientation="$(arg gripper_orientation)">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+    </xacro:rebel_gripper>
+</robot>

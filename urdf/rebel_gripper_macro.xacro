@@ -1,0 +1,341 @@
+<?xml version="1.0"?>
+
+<!-- 
+    Rebel Gripper URDF
+    Contains xacro code with the original base of the Rebel Gripper by Igus but with a approximated 
+    finger articulation mechanism that is very close to the original articulation. Please excuse
+    the partially messy code, but it worked out in the end so I dont disturb this equilibrium.
+
+    Parameters for the approximation were determined Trajectory data extacted from a SolidWorks motion
+    study of the fully articulated gripper.
+
+    Parameters from Trajectory Analysis:
+    - Both fingers: Radius = 45.93mm (calculated from geometry constraints)
+        - Link length from rotation center of finger to finger-tip center
+    - Left rotation center:  (-20mm, 18.875mm, 62.81mm) from gripper base
+    - Right rotation center: (+20mm, 18.625mm, 62.81mm) from gripper base
+    - Motor input: 0 = open, 77.75° = closed
+        - Transformation of motor angle was done to have 0° to 77.75°
+
+    The requirements to determining the parameter above were:
+    - Gripper Open:
+        - Z (Up): 83mm
+        - Distance between fingertips: 108mm
+    - Gripper Closed:
+        - Z (Up): 107.4mm
+        - Distance between fingertips: 3.5mm
+-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_name">
+
+    <!-- ===================================
+         ==      Material Definitions     ==
+         =================================== -->
+    <material name="gripper_grey">
+        <color rgba="0.5 0.5 0.5 1.0" />
+    </material>
+
+    <material name="gripper_dark">
+        <color rgba="0.2 0.2 0.2 1.0" />I </material>
+
+    <material name="finger_color">
+        <color rgba="0.79 0.82 0.93 1.0" />
+    </material>
+
+    <material name="joint_marker">
+        <color rgba="1.0 0.0 0.0 0.5" />
+    </material>
+
+    <!-- ===================================
+         ==       Gripper Parameters      ==
+         =================================== -->
+
+    <!-- Parameter from trajectory analysis -->
+
+    <xacro:property name="finger_length" value="0.04593" />
+    <!-- Rotation centers relative to gripper base -->
+    <xacro:property name="left_center_x" value="-0.02" />
+    <xacro:property name="left_center_y" value="0.06281" />
+    <xacro:property name="left_center_z" value="0.018875" />
+    <xacro:property name="right_center_x" value="0.02" />
+    <xacro:property name="right_center_y" value="0.06281" />
+    <xacro:property name="right_center_z" value="0.018625" />
+
+    <!-- Joint angle limits (in radians) -->
+    <!-- Closed: Z = 107.4mm, Fingertip distance = 3.5mm | Open: Z = 83mm, Fingertip distance =
+    108mm -->
+    <xacro:property name="left_angle_open" value="2.686" />
+    <xacro:property name="left_angle_closed" value="1.329" />
+    <xacro:property name="right_angle_open" value="0.455" />
+    <xacro:property name="right_angle_closed" value="1.813" />
+
+    <!-- Motor: 0° -> open, 1.357 rad (77.75°) -> closed -->
+    <xacro:property name="motor_range" value="1.357" />  <!-- 77.75° -->
+
+    <!-- ===================================
+         ==         Gripper Macro         ==
+         =================================== -->
+    <xacro:macro name="rebel_gripper"
+        params="
+        prefix=''
+        parent
+        orientation='0.0'
+        *origin">
+
+
+        <!-- ===================================
+             ==         Gripper Links         ==
+             =================================== -->
+
+        <!-- Virtual motor output link -->
+        <link name="${prefix}motor_output" />
+
+        <!-- Exact center of the bootom of the gripper -->
+
+        <!-- Gripper Base Link -->
+        <link name="${prefix}gripper_base">
+            <visual>
+                <!-- <origin xyz="0.0 -0.01875 0.004" rpy="0.0 0.0 0.0" /> -->
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_base.STL" />
+                </geometry>
+                <material name="gripper_dark" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_base.STL" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Right Gripper Arm Link -->
+        <link name="${prefix}right_gripper_arm_link">
+            <visual>
+                <origin xyz="-0.003 -0.0125 -0.003" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_arm_link.STL"
+                        scale="0.001 0.001 0.00105" />
+                </geometry>
+                <material name="gripper_grey" />
+            </visual>
+            <collision>
+                <origin xyz="-0.003 -0.0125 -0.003" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_arm_link.STL"
+                        scale="0.001 0.001 0.00105" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Right Finger Arm -->
+        <link name="${prefix}right_finger_arm" />
+
+        <!-- Right Fingertip -->
+        <link name="${prefix}right_fingertip">
+            <visual>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <box size="0.020 0.0145 0.025" />
+                </geometry>
+                <material name="finger_color" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <box size="0.020 0.0145 0.025" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Virtual Joint for center of right fingertip-plane -->
+        <link name="${prefix}right_fingertip_center" />
+
+
+        <!-- Left Gripper Arm Link -->
+        <link name="${prefix}left_gripper_arm_link">
+            <visual>
+                <origin xyz="-0.003 -0.0125 -0.003" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_arm_link.STL"
+                        scale="0.001 0.001 0.00105" />
+                </geometry>
+                <material name="gripper_grey" />
+            </visual>
+            <collision>
+                <origin xyz="-0.003 -0.0125 -0.003" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <mesh filename="package://rebel_gripper/meshes/gripper_arm_link.STL"
+                        scale="0.001 0.001 0.00105" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Left Finger Arm -->
+        <link name="${prefix}left_finger_arm" />
+
+        <!-- Left Fingertip -->
+        <link name="${prefix}left_fingertip">
+            <visual>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <box size="0.020 0.0145 0.025" />
+                </geometry>
+                <material name="finger_color" />
+            </visual>
+            <collision>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+                <geometry>
+                    <box size="0.020 0.0145 0.025" />
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Virtual Joint for center of left fingertip-plane -->
+        <link name="${prefix}left_fingertip_center" />
+
+        <!-- TCP (Tool Center Point) as tf for visualization -->
+        <link name="${prefix}tcp">
+            <!-- <visual>
+                <geometry>
+                    <sphere radius="0.005" />
+                </geometry>
+                <material name="joint_marker" />
+            </visual> -->
+        </link>
+
+        <!-- Link used for mounting -->
+        <link name="${prefix}gripper_mount_link" />
+
+        <!-- ===================================
+             ==        Gripper Joints         ==
+             =================================== -->
+
+        <!-- [parent] -> [gripper_mount_link] (user's mounting transform) -->
+        <joint name="${prefix}attachment_gripper_mount-joint" type="fixed">
+            <parent link="${parent}" />
+            <child link="${prefix}gripper_mount_link" />
+            <xacro:insert_block name="origin" />
+        </joint>
+
+        <!-- [gripper_mount_link] -> [gripper_base] (internal offset + orientation) -->
+        <joint name="${prefix}gripper_mount_gripper_base-joint" type="fixed">
+            <parent link="${prefix}gripper_mount_link" />
+            <child link="${prefix}gripper_base" />
+            <origin xyz="0.0 -0.01875 0.004" rpy="0.0 ${pi/180*orientation} 0.0" />
+        </joint>
+
+        <!-- gripper_base -> motor_output -->
+        <joint name="${prefix}gripper_base_motor-joint" type="revolute">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}motor_output" />
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+            <axis xyz="0 0 1" />
+            <limit lower="0" upper="${motor_range}" effort="10.0" velocity="0.3" />
+        </joint>
+
+        <!-- ===================================
+             ==      Left Finger Joints       ==
+             =================================== -->
+
+        <!-- [gripper_base] -> [left_finger_arm] -->
+        <joint name="${prefix}gripper_base_left_finger_arm-joint" type="revolute">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}left_finger_arm" />
+            <origin xyz="${left_center_x} ${left_center_z} ${left_center_y}" rpy="1.5708 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="${left_angle_closed}" upper="${left_angle_open}" effort="10.0"
+                velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_motor-joint" multiplier="-1.0"
+                offset="${left_angle_open}" />
+        </joint>
+
+        <!-- [left_finger_arm] -> [left_fingertip] -->
+        <joint name="${prefix}left_finger_arm_left_fingertip-joint" type="revolute">
+            <parent link="${prefix}left_finger_arm" />
+            <child link="${prefix}left_fingertip" />
+            <origin xyz="${finger_length} 0 0" rpy="0 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="-1.115" upper="0.242" effort="10.0" velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_left_finger_arm-joint" multiplier="-1.0"
+                offset="1.5708" />
+        </joint>
+
+        <!-- [gripper_base] -> [left_gripper_arm_link] -->
+        <joint name="${prefix}left_gripper_arm_link-joint" type="revolute">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}left_gripper_arm_link" />
+            <origin xyz="${left_center_x} ${left_center_z} ${left_center_y}" rpy="0 1.6581 ${pi}" />
+            <axis xyz="0 -1 0" />
+            <limit lower="${-left_angle_open + pi}" upper="${-left_angle_closed + pi}" effort="10.0"
+                velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_left_finger_arm-joint" multiplier="-1.0"
+                offset="${pi}" />
+        </joint>
+
+        <!-- [left_fingertip] -> [left_fingertip_center] -->
+        <joint name="${prefix}left_fingertip_to_left_fingertip_center-joint" type="fixed">
+            <parent link="${prefix}left_fingertip" />
+            <child link="${prefix}left_fingertip_center" />
+            <origin xyz="0 -0.00725 0" rpy="${pi/2} 0 0" />
+        </joint>
+
+        <!-- ===================================
+             ==     Right Finger Joints       ==
+             =================================== -->
+
+        <!-- [gripper_base] -> [right_finger_arm] -->
+        <joint name="${prefix}gripper_base_right_finger_arm-joint" type="revolute">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}right_finger_arm" />
+            <origin xyz="${right_center_x} ${right_center_z} ${right_center_y}" rpy="1.5708 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="${right_angle_open}" upper="${right_angle_closed}" effort="10.0"
+                velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_left_finger_arm-joint" multiplier="-1.0"
+                offset="3.1416" />
+        </joint>
+
+        <!-- [right_finger_arm] -> [right_fingertip] -->
+        <joint name="${prefix}right_fingertip-joint" type="revolute">
+            <parent link="${prefix}right_finger_arm" />
+            <child link="${prefix}right_fingertip" />
+            <origin xyz="${finger_length} 0 0" rpy="0 0 0" />
+            <axis xyz="0 0 1" />
+            <limit lower="-0.242" upper="1.116" effort="10.0" velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_right_finger_arm-joint" multiplier="-1.0"
+                offset="1.5708" />
+        </joint>
+
+        <!-- [gripper_base] -> [right_gripper_arm_link] -->
+        <joint name="${prefix}right_gripper_arm_link-joint" type="revolute">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}right_gripper_arm_link" />
+            <origin xyz="${right_center_x} ${right_center_z} ${right_center_y}" rpy="0 1.6581 0" />
+            <axis xyz="0 -1 0" />
+            <limit lower="${right_angle_open}" upper="${right_angle_closed}" effort="10.0"
+                velocity="0.3" />
+            <mimic joint="${prefix}gripper_base_left_finger_arm-joint" multiplier="-1.0"
+                offset="3.1416" />
+        </joint>
+
+        <!-- [right_fingertip] -> [right_fingertip_center] -->
+        <joint name="${prefix}right_fingertip_right_fingertip_center-joint" type="fixed">
+            <parent link="${prefix}right_fingertip" />
+            <child link="${prefix}right_fingertip_center" />
+            <origin xyz="0 0.00725 0" rpy="-${pi/2} 0 0" />
+        </joint>
+
+
+        <!-- [gripper_base] -> [tcp] -->
+        <joint name="${prefix}base_to_tcp" type="fixed">
+            <parent link="${prefix}gripper_base" />
+            <child link="${prefix}tcp" />
+            <origin xyz="0 0.01875 0.1074" rpy="0 0 0" />
+        </joint>
+
+    </xacro:macro>
+
+
+</robot>
