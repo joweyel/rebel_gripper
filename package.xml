@@ -4,8 +4,8 @@
   <name>rebel_gripper</name>
   <version>0.1.0</version>
   <description>Package for the Rebel Gripper by Igus with articulated fingers.</description>
-  <maintainer email="johannes.weyel@et.hs-fulda.de">johannes</maintainer>
-  <license>TODO</license>
+  <maintainer email="johannes.weyel@protonmail.com">joweyel</maintainer>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
