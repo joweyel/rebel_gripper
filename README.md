@@ -11,7 +11,7 @@ ros2 launch rebel_gripper view_gripper.launch.py
 
 ### Integration with Robot in Klaus Workspace
 ```bash
-ros2 launch klaus_bringup klaus.launch.py gripper_type:=rebel
+ros2 launch kls_bringup kls.launch.py gripper_type:=rebel
 ```
 
 ## Files
