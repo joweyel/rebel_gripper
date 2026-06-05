@@ -36,7 +36,7 @@
     </material>
 
     <material name="gripper_dark">
-        <color rgba="0.2 0.2 0.2 1.0" />I </material>
+        <color rgba="0.2 0.2 0.2 1.0" /></material>
 
     <material name="finger_color">
         <color rgba="0.79 0.82 0.93 1.0" />
