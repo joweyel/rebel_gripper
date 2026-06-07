@@ -2,6 +2,9 @@
 
 ROS2 package for the igus ReBeL articulated gripper with circular arc finger motion. Finger motion follows measured arcs, obtained from a SolidWorks motion-study trajectory data.
 
+![Real and approximated Gripper](./assets/gripper_comparison.png)
+
+
 ## Usage
 
 ### Standalone Visualization
@@ -26,3 +29,5 @@ ros2 launch kls_bringup kls.launch.py gripper_type:=rebel
 - **Finger radius**: $45.93$ mm (rotation center to fingertip)
 - **Motor range**: $0^{\circ}$ (open) to $77.75^{\circ}$ (closed)
 - **Rotation centers**: $\pm20$ mm (X), $62.81$ mm (Z) from gripper base
+
+![Gripping](assets/gripper_gripping.jpg)
