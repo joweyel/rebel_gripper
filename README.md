@@ -30,4 +30,8 @@ ros2 launch kls_bringup kls.launch.py gripper_type:=rebel
 - **Motor range**: $0^{\circ}$ (open) to $77.75^{\circ}$ (closed)
 - **Rotation centers**: $\pm20$ mm (X), $62.81$ mm (Z) from gripper base
 
+## Gripper Articulation (approximatively exact movement)
+https://github.com/user-attachments/assets/d92b53f8-c595-4af6-848b-00c719658d52
+
+
 ![Gripping](assets/gripper_gripping.jpg)
