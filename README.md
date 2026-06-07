@@ -2,7 +2,7 @@
 
 ROS2 package for the igus ReBeL articulated gripper with circular arc finger motion. Finger motion follows measured arcs, obtained from a SolidWorks motion-study trajectory data.
 
-![Real and approximated Gripper](./assets/gripper_comparison.png)
+![Real and approximated Gripper](./assets/gripper_comparison.jpg)
 
 
 ## Usage
